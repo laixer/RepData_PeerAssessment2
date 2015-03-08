@@ -19,7 +19,7 @@ library(stringr)
 ```
 
 ```{r load_storm_data, cache=TRUE}
-weather_events <- read.csv("StormData.csv")
+weather_events <- read.csv("StormData.csv.bz2")
 ```
 
 The event types in the raw data do not appear to be well standardized. We first
