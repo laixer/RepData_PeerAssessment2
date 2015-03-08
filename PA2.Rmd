@@ -15,17 +15,28 @@ weather_events <- read.csv("StormData.csv")
 ```
 
 ```{r, cache=TRUE}
-weather_events$EVTYPE <- gsub("^TORN.*", "TORNADO", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub("^THUNDER.*TORM.*", "THUNDERSTORM WINDS", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub("^TSTM WIND.*", "THUNDERSTORM WINDS", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub("^FLOOD.*", "FLOOD", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub("^LIGHTNING.*", "LIGHTNING", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub(".*ICE STORM.*", "ICE STORM", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub("^WINTER STORM.*", "WINTER STORM", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub("^HIGH WIND.*", "HIGH WINDS", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub("^HURRICANE.*", "HURRICANE", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub("^WILD.*FIRE.*", "WILDFIRE", weather_events$EVTYPE)
-weather_events$EVTYPE <- gsub(".*FOG.*", "FOG", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^TORN.*", "TORNADO", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^THUNDER.*TORM.*", "THUNDERSTORM WINDS", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^TSTM WIND.*", "THUNDERSTORM WINDS", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^FLOOD.*", "FLOOD", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^LIGHTNING.*", "LIGHTNING", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub(".*ICE STORM.*", "ICE STORM", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^WINTER STORM.*", "WINTER STORM", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^HIGH WIND.*", "HIGH WINDS", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^HURRICANE.*", "HURRICANE", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^WILD.*FIRE.*", "WILDFIRE", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub(".*FOG.*", "FOG", weather_events$EVTYPE)
 
 convert_multiplier <- function(mult) {
   if (mult %in% c("k", "K")) {
@@ -39,9 +50,12 @@ convert_multiplier <- function(mult) {
   }
 }
 
-weather_events$PROPDMGMULT <- sapply(weather_events$PROPDMGEXP, convert_multiplier)
-weather_events$CROPDMGMULT <- sapply(weather_events$CROPDMGEXP, convert_multiplier)
-weather_events <- weather_events %>% mutate(PROPDMG = PROPDMG * PROPDMGMULT, CROPDMG = CROPDMG * CROPDMGMULT)
+weather_events$PROPDMGMULT <- 
+  sapply(weather_events$PROPDMGEXP, convert_multiplier)
+weather_events$CROPDMGMULT <- 
+  sapply(weather_events$CROPDMGEXP, convert_multiplier)
+weather_events <- weather_events %>% 
+  mutate(PROPDMG = PROPDMG * PROPDMGMULT, CROPDMG = CROPDMG * CROPDMGMULT)
 ```
 
 ## Casualties ##
@@ -56,7 +70,8 @@ worst_casualty_events <- weather_events %>%
   arrange(desc(TOTAL_CASUALTIES))
 
 top_n <- 15
-sp <- split(worst_casualty_events, c(rep(0, top_n), rep(2, nrow(worst_casualty_events) - top_n)))
+sp <- split(worst_casualty_events, 
+            c(rep(0, top_n), rep(2, nrow(worst_casualty_events) - top_n)))
 
 top_worst_events <- sp[[1]]
 other_worst_events <- sp[[2]] %>%
@@ -68,10 +83,16 @@ other_worst_events <- sp[[2]] %>%
   
 worst_events_summary <- rbind(top_worst_events, other_worst_events)
 worst_events_summary$EVTYPE <- str_wrap(worst_events_summary$EVTYPE, width=10)
-worst_events_summary$EVTYPE <- factor(worst_events_summary$EVTYPE, levels=worst_events_summary$EVTYPE)
+worst_events_summary$EVTYPE <- 
+  factor(worst_events_summary$EVTYPE, levels=worst_events_summary$EVTYPE)
 
-molten_events <- melt(as.data.frame(select(worst_events_summary, EVTYPE, TOTAL_FATALITIES, TOTAL_INJURIES)), id=c("EVTYPE"))
-molten_events$variable <- factor(molten_events$variable, levels=c("TOTAL_FATALITIES", "TOTAL_INJURIES"), labels=c("fatalities", "injuries"))
+molten_events <- melt(
+  select(worst_events_summary, EVTYPE, TOTAL_FATALITIES, TOTAL_INJURIES), 
+  id=c("EVTYPE"))
+molten_events$variable <- 
+  factor(molten_events$variable, 
+         levels=c("TOTAL_FATALITIES", "TOTAL_INJURIES"), 
+         labels=c("fatalities", "injuries"))
 
 ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
   geom_bar(stat = "identity") +
@@ -90,7 +111,8 @@ worst_damage_events <- weather_events %>%
   arrange(desc(TOTAL_DAMAGE))
 
 top_n <- 15
-sp <- split(worst_damage_events, c(rep(0, top_n), rep(2, nrow(worst_damage_events) - top_n)))
+sp <- split(worst_damage_events, 
+            c(rep(0, top_n), rep(2, nrow(worst_damage_events) - top_n)))
 
 top_worst_events <- sp[[1]]
 other_worst_events <- sp[[2]] %>%
@@ -102,10 +124,17 @@ other_worst_events <- sp[[2]] %>%
 
 worst_events_summary <- rbind(top_worst_events, other_worst_events)
 worst_events_summary$EVTYPE <- str_wrap(worst_events_summary$EVTYPE, width=10)
-worst_events_summary$EVTYPE <- factor(worst_events_summary$EVTYPE, levels=worst_events_summary$EVTYPE)
+worst_events_summary$EVTYPE <- 
+  factor(worst_events_summary$EVTYPE, levels=worst_events_summary$EVTYPE)
 
-molten_events <- melt(as.data.frame(select(worst_events_summary, EVTYPE, TOTAL_PROPERTY_DAMAGE, TOTAL_CROP_DAMAGE)), id=c("EVTYPE"))
-molten_events$variable <- factor(molten_events$variable, levels=c("TOTAL_PROPERTY_DAMAGE", "TOTAL_CROP_DAMAGE"), labels=c("property", "crop"))
+molten_events <- melt(
+  select(worst_events_summary, 
+         EVTYPE, TOTAL_PROPERTY_DAMAGE, TOTAL_CROP_DAMAGE), 
+  id=c("EVTYPE"))
+molten_events$variable <- 
+  factor(molten_events$variable, 
+         levels=c("TOTAL_PROPERTY_DAMAGE", "TOTAL_CROP_DAMAGE"), 
+         labels=c("property", "crop"))
 
 ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
   geom_bar(stat = "identity") +
