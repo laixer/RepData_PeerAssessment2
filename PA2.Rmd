@@ -44,6 +44,7 @@ weather_events$CROPDMGMULT <- sapply(weather_events$CROPDMGEXP, convert_multipli
 weather_events <- weather_events %>% mutate(PROPDMG = PROPDMG * PROPDMGMULT, CROPDMG = CROPDMG * CROPDMGMULT)
 ```
 
+## Casualties ##
 
 ```{r, fig.width=12, fig.height=6}
 worst_casualty_events <- weather_events %>%
@@ -76,5 +77,39 @@ ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
   geom_bar(stat = "identity") +
   xlab("") + 
   ylab("casualties") +
+  theme(axis.text.x = element_text(angle=45, vjust=0.5)) 
+```
+
+## Damage ##
+```{r, fig.width=12, fig.height=6}
+worst_damage_events <- weather_events %>%
+  group_by(EVTYPE) %>%
+  summarize(TOTAL_DAMAGE = sum(PROPDMG + CROPDMG) / 10^9, 
+            TOTAL_PROPERTY_DAMAGE = sum(PROPDMG) / 10^9,
+            TOTAL_CROP_DAMAGE = sum(CROPDMG) / 10^9) %>%
+  arrange(desc(TOTAL_DAMAGE))
+
+top_n <- 15
+sp <- split(worst_damage_events, c(rep(0, top_n), rep(2, nrow(worst_damage_events) - top_n)))
+
+top_worst_events <- sp[[1]]
+other_worst_events <- sp[[2]] %>%
+  mutate(EVTYPE="OTHER") %>%
+  group_by(EVTYPE) %>%
+  summarize(TOTAL_DAMAGE = sum(TOTAL_DAMAGE), 
+            TOTAL_PROPERTY_DAMAGE = sum(TOTAL_PROPERTY_DAMAGE),
+            TOTAL_CROP_DAMAGE = sum(TOTAL_CROP_DAMAGE))
+
+worst_events_summary <- rbind(top_worst_events, other_worst_events)
+worst_events_summary$EVTYPE <- str_wrap(worst_events_summary$EVTYPE, width=10)
+worst_events_summary$EVTYPE <- factor(worst_events_summary$EVTYPE, levels=worst_events_summary$EVTYPE)
+
+molten_events <- melt(as.data.frame(select(worst_events_summary, EVTYPE, TOTAL_PROPERTY_DAMAGE, TOTAL_CROP_DAMAGE)), id=c("EVTYPE"))
+molten_events$variable <- factor(molten_events$variable, levels=c("TOTAL_PROPERTY_DAMAGE", "TOTAL_CROP_DAMAGE"), labels=c("property", "crop"))
+
+ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
+  geom_bar(stat = "identity") +
+  xlab("") + 
+  ylab("damage (billions)") +
   theme(axis.text.x = element_text(angle=45, vjust=0.5)) 
 ```
