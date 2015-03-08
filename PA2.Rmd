@@ -1,7 +1,11 @@
 ---
-title: "Untitled"
+title: "Analysis of population and economic impact of severe weather events in the United States."
 output: html_document
 ---
+
+This is the synopsis, blah blah blah.
+
+## Data Processing ##
 
 ```{r}
 library(dplyr)
@@ -13,6 +17,12 @@ library(stringr)
 ```{r, cache=TRUE}
 weather_events <- read.csv("StormData.csv")
 ```
+
+The event types in the raw data do not appear to be well standardized. We first
+organize event types that appear to be related. We mainly focus on event types
+that have the most population and economic effects. The 
+[Storm Data Documentation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf)
+was used as a reference for standard event types.
 
 ```{r, cache=TRUE}
 weather_events$EVTYPE <- 
@@ -37,14 +47,24 @@ weather_events$EVTYPE <-
   gsub("^WILD.*FIRE.*", "WILDFIRE", weather_events$EVTYPE)
 weather_events$EVTYPE <- 
   gsub(".*FOG.*", "FOG", weather_events$EVTYPE)
+```
 
+The property and crop damage data is stored in four columns with separate 
+columns for a base value and a "multiplier". We compute single values for 
+property and crop damage by multiplying the base value by the multiplier.
+While most data has reasonable multipliers (k=thousands, m=millions, b=billions),
+some of the data has less obvious multipliers like '+', '-' and numeric values.
+We chose to disregard data with unexpected multipliers as it comprises a very
+minor portion of the data set and should not have any impact on the results.
+
+```{r, cache=TRUE}
 convert_multiplier <- function(mult) {
   if (mult %in% c("k", "K")) {
-    return(1000)
+    return(10^3)
   } else if(mult %in% c("m", "M")) {
-    return(1000000)
+    return(10^6)
   } else if (mult %in% c("b", "B")) {
-    return(1000000000)
+    return(10^9)
   } else {
     return(0)
   }
@@ -58,7 +78,9 @@ weather_events <- weather_events %>%
   mutate(PROPDMG = PROPDMG * PROPDMGMULT, CROPDMG = CROPDMG * CROPDMGMULT)
 ```
 
-## Casualties ##
+## Results ##
+
+### Casualties ###
 
 ```{r, fig.width=12, fig.height=6}
 worst_casualty_events <- weather_events %>%
@@ -101,7 +123,7 @@ ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
   theme(axis.text.x = element_text(angle=45, vjust=0.5)) 
 ```
 
-## Damage ##
+### Damage ###
 ```{r, fig.width=12, fig.height=6}
 worst_damage_events <- weather_events %>%
   group_by(EVTYPE) %>%
