@@ -11,14 +11,14 @@ Tornadoes and Storm Surges.
 
 ## Data Processing ##
 
-```{r}
+```{r load_libraries}
 library(dplyr)
 library(ggplot2)
 library(reshape2)
 library(stringr)
 ```
 
-```{r, cache=TRUE}
+```{r load_storm_data, cache=TRUE}
 weather_events <- read.csv("StormData.csv")
 ```
 
@@ -28,7 +28,7 @@ that have the most population and economic effects. The
 [Storm Data Documentation](https://d396qusza40orc.cloudfront.net/repdata%2Fpeer2_doc%2Fpd01016005curr.pdf)
 was used as a reference for standard event types.
 
-```{r, cache=TRUE}
+```{r normalize_event_types, cache=TRUE}
 weather_events$EVTYPE <- 
   gsub("^TORN.*", "TORNADO", weather_events$EVTYPE)
 weather_events$EVTYPE <- 
@@ -51,6 +51,8 @@ weather_events$EVTYPE <-
   gsub("^WILD.*FIRE.*", "WILDFIRE", weather_events$EVTYPE)
 weather_events$EVTYPE <- 
   gsub(".*FOG.*", "FOG", weather_events$EVTYPE)
+weather_events$EVTYPE <- 
+  gsub("^STORM SURGE.*", "STORM SURGE", weather_events$EVTYPE)
 ```
 
 The property and crop damage data is stored in four columns with separate 
@@ -61,7 +63,7 @@ some of the data has less obvious multipliers like '+', '-' and numeric values.
 We chose to disregard data with unexpected multipliers as it comprises a very
 minor portion of the data set and should not have any impact on the results.
 
-```{r, cache=TRUE}
+```{r compute_absolute_damage, cache=TRUE}
 convert_multiplier <- function(mult) {
   if (mult %in% c("k", "K")) {
     return(10^3)
@@ -87,7 +89,7 @@ weather_events <- weather_events %>%
 We first look at severe weather events by their impact on the population. We
 rank the events by casualties (injuries plus fatalities).
 
-```{r, fig.width=12, fig.height=6}
+```{r casualty_analysis, fig.width=12, fig.height=6}
 worst_casualty_events <- weather_events %>%
   filter(FATALITIES > 0 | INJURIES > 0) %>%
   group_by(EVTYPE) %>%
@@ -134,7 +136,7 @@ ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
 Damage analysis was performed by ranking the severe weather events by total 
 damage (property plus crop).
 
-```{r, fig.width=12, fig.height=6}
+```{r damage_analysis, fig.width=12, fig.height=6}
 worst_damage_events <- weather_events %>%
   group_by(EVTYPE) %>%
   summarize(TOTAL_DAMAGE = sum(PROPDMG + CROPDMG) / 10^9, 
