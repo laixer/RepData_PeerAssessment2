@@ -3,7 +3,11 @@ title: "Analysis of population and economic impact of severe weather events in t
 output: html_document
 ---
 
-This is the synopsis, blah blah blah.
+Tornadoes, by far, cause the biggest impact to human lives in terms of injuries
+and fatalities. 
+
+The leading contributors to property and crop damage are Flooding, Hurricanes, 
+Tornadoes and Storm Surges.
 
 ## Data Processing ##
 
