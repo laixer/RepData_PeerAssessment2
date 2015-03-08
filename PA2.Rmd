@@ -78,9 +78,10 @@ weather_events <- weather_events %>%
   mutate(PROPDMG = PROPDMG * PROPDMGMULT, CROPDMG = CROPDMG * CROPDMGMULT)
 ```
 
-## Results ##
+## Casualties ##
 
-### Casualties ###
+We first look at severe weather events by their impact on the population. We
+rank the events by casualties (injuries plus fatalities).
 
 ```{r, fig.width=12, fig.height=6}
 worst_casualty_events <- weather_events %>%
@@ -118,12 +119,17 @@ molten_events$variable <-
 
 ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
   geom_bar(stat = "identity") +
+  ggtitle("Top severe weather events by casualties") +
   xlab("") + 
   ylab("casualties") +
   theme(axis.text.x = element_text(angle=45, vjust=0.5)) 
 ```
 
 ### Damage ###
+
+Damage analysis was performed by ranking the severe weather events by total 
+damage (property plus crop).
+
 ```{r, fig.width=12, fig.height=6}
 worst_damage_events <- weather_events %>%
   group_by(EVTYPE) %>%
@@ -160,7 +166,10 @@ molten_events$variable <-
 
 ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
   geom_bar(stat = "identity") +
+  ggtitle("Top severe weather events by damage") +
   xlab("") + 
   ylab("damage (billions)") +
   theme(axis.text.x = element_text(angle=45, vjust=0.5)) 
 ```
+
+## Results ##
