@@ -173,3 +173,10 @@ ggplot(molten_events, aes(EVTYPE, value, fill = variable)) +
 ```
 
 ## Results ##
+
+Our analysis shows that Tornadoes cause the biggest number of casualties by far,
+especially in terms of injuries. Other leading types of events, by impact, are 
+Thunderstorm Winds, Excessive Heat, Flooding and Lightning. 
+
+In terms of property and crop damage, Flooding, Hurricanes, Tornadoes and Storm 
+Surges stand out as the biggest events.
